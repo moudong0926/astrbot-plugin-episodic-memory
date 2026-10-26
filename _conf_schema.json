@@ -1,0 +1,77 @@
+{
+  "embed_key": {
+    "type": "string",
+    "description": "智谱 embedding API Key（用于向量化记忆摘要）",
+    "default": ""
+  },
+  "embed_url": {
+    "type": "string",
+    "description": "Embedding 接口地址",
+    "default": "https://open.bigmodel.cn/api/paas/v4/embeddings"
+  },
+  "embed_model": {
+    "type": "string",
+    "description": "Embedding 模型名",
+    "default": "embedding-3"
+  },
+  "session_gap_minutes": {
+    "type": "int",
+    "description": "超过多少分钟没聊天视为新会话（触发灵魂注入）",
+    "default": 30
+  },
+  "extract_every_n": {
+    "type": "int",
+    "description": "每 N 轮对话自动提炼一次记忆卡片",
+    "default": 4
+  },
+  "extract_enabled": {
+    "type": "bool",
+    "description": "是否自动提炼卡片",
+    "default": true
+  },
+  "recall_top_k": {
+    "type": "int",
+    "description": "每轮召回的记忆卡片数量上限",
+    "default": 5
+  },
+  "recall_min_score": {
+    "type": "float",
+    "description": "召回最低相关度",
+    "default": 0.18
+  },
+  "w_semantic": {
+    "type": "float",
+    "description": "语义相似度权重",
+    "default": 0.7
+  },
+  "w_time": {
+    "type": "float",
+    "description": "时间新鲜度权重",
+    "default": 0.2
+  },
+  "w_hit": {
+    "type": "float",
+    "description": "强化度权重",
+    "default": 0.1
+  },
+  "time_decay_days": {
+    "type": "int",
+    "description": "时间衰减半衰期（天）",
+    "default": 90
+  },
+  "soul_recent_cards": {
+    "type": "int",
+    "description": "灵魂注入时带几张最近的卡片",
+    "default": 5
+  },
+  "max_facts_return": {
+    "type": "int",
+    "description": "memory_detail 最多返回多少条细节",
+    "default": 20
+  },
+  "context_token_limit": {
+    "type": "int",
+    "description": "当前会话 token 超过此值就自动重置上下文（记忆卡片保留，转生重新注入）；0=关闭",
+    "default": 32000
+  }
+}

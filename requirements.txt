@@ -1,0 +1,4 @@
+# 情景记忆插件依赖
+# 完整版需要本地重排模型
+sentence-transformers>=2.2.0
+torch>=2.0.0

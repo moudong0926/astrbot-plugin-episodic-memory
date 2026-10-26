@@ -1,0 +1,5 @@
+name: astrbot_plugin_episodic_memory
+desc: 情景记忆·转生版：带标签的记忆卡片 + 智谱向量检索 + 时间/强化衰减 + 跨会话灵魂注入
+version: 1.0.0
+author: 小鲸鱼
+repo: ""
