@@ -21,6 +21,7 @@
 import asyncio
 import json
 import math
+import os
 import re
 import sqlite3
 import time
@@ -30,10 +31,11 @@ from pathlib import Path
 import aiohttp
 
 import astrbot.api.event.filter as filter
-from astrbot.api import llm_tool, star
+from astrbot.api import llm_tool, logger, star
 from astrbot.api.event import AstrMessageEvent
 from astrbot.api.provider import ProviderRequest, LLMResponse
-from astrbot.core import logger
+from astrbot.core.agent.message import TextPart
+from astrbot.core.utils.astrbot_path import get_astrbot_data_path
 
 # ── 默认参数（可被插件配置覆盖）──────────────────────────────
 DEFAULTS = {
@@ -98,7 +100,8 @@ class EpisodicMemoryPlugin(star.Star):
     def __init__(self, context: star.Context, config: dict | None = None) -> None:
         self.context = context
         self.config = config or {}
-        self.data_dir = Path(__file__).parent / "data"
+        # [规范] 数据必须放在 data/plugin_data/<plugin_name>，便于迁移和审计
+        self.data_dir = Path(get_astrbot_data_path()) / "plugin_data" / "astrbot_plugin_episodic_memory"
         self.data_dir.mkdir(parents=True, exist_ok=True)
         self.db_path = self.data_dir / "memory.db"
         self.soul_file = self.data_dir / "soul.md"
@@ -699,7 +702,10 @@ class EpisodicMemoryPlugin(star.Star):
                 )
                 block = self._soul_block(recent, include_soul=owner)
                 if block:
-                    req.system_prompt = (req.system_prompt or "") + "\n\n" + block + "\n\n"
+                    # [规范] 不污染 system_prompt，改用临时用户内容（不影响 prompt 缓存）
+                    req.extra_user_content_parts.append(
+                        TextPart(text="\n\n" + block + "\n\n").make_as_temp()
+                    )
                 st["soul_injected"] = True
                 st["pending"] = []
 
@@ -726,11 +732,13 @@ class EpisodicMemoryPlugin(star.Star):
                         lines.append(line)
                         used += len(line)
                     if lines:
-                        req.system_prompt = (
-                            (req.system_prompt or "")
-                            + "\n\n【长期记忆档案】（背景参考；若与当前对话冲突，以当前对话为准）\n"
-                            + "\n".join(lines)
-                            + "\n\n"
+                        # [规范] 召回结果作为临时用户内容注入，system_prompt 保持不变
+                        req.extra_user_content_parts.append(
+                            TextPart(
+                                text="\n\n【长期记忆档案】（背景参考；若与当前对话冲突，以当前对话为准）\n"
+                                + "\n".join(lines)
+                                + "\n\n"
+                            ).make_as_temp()
                         )
 
             st["last_ts"] = now
